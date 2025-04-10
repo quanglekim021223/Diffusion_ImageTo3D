@@ -1,143 +1,131 @@
-# Image to 3D Model Converter
+# Diffusion Image to 3D
 
-This project converts 2D images to 3D models using Zero123++ pre-trained model, optimized for game development.
+Dự án này sử dụng mô hình Zero123++ với Latent Diffusion để chuyển đổi hình ảnh 2D thành mô hình 3D. Dự án được tối ưu hóa để chạy trên môi trường Kaggle với tài nguyên hạn chế.
 
-## Overview
+## Tính năng
 
-This project provides a complete pipeline for converting 2D images to 3D models using state-of-the-art AI techniques:
+- **Chuyển đổi hình ảnh 2D sang 3D**: Sử dụng mô hình Zero123++ với Latent Diffusion
+- **Tạo nhiều góc nhìn**: Tạo ra nhiều góc nhìn mới từ một hình ảnh đầu vào
+- **Tái tạo bề mặt 3D**: Sử dụng thuật toán Poisson Surface Reconstruction để tạo mô hình 3D chất lượng cao
+- **Áp dụng kết cấu**: Tự động áp dụng kết cấu cho mô hình 3D
+- **Xuất nhiều định dạng**: Hỗ trợ xuất mô hình 3D ở nhiều định dạng (GLB, OBJ, PLY, STL)
+- **Tối ưu hóa bộ nhớ**: Sử dụng mixed precision và quản lý bộ nhớ để chạy trên môi trường hạn chế tài nguyên
+- **Tùy chỉnh góc nhìn**: Cho phép tùy chỉnh góc nâng và góc phương vị để tạo ra các góc nhìn mới
+- **Điều chỉnh chất lượng mesh**: Tùy chọn chất lượng mesh (thấp, trung bình, cao) để cân bằng giữa chất lượng và hiệu suất
 
-1. **Image Preprocessing**: Prepare the input image for the model
-2. **Novel View Generation**: Generate multiple views of the object using Zero123++
-3. **3D Reconstruction**: Create a 3D mesh from the generated views
-4. **Mesh Optimization**: Optimize the mesh for better quality
-5. **Export**: Export the 3D model in formats suitable for game engines
-
-## Setup Instructions
-
-### For Kaggle (Recommended):
-
-1. Create a new notebook on Kaggle
-2. Enable GPU accelerator (P100 or better recommended)
-3. Clone this repository:
-   ```bash
-   !git clone https://github.com/yourusername/image-to-3d.git
-   %cd image-to-3d
-   ```
-4. Install dependencies:
-   ```bash
-   !pip install -r requirements.txt
-   ```
-5. Download pre-trained weights:
-   ```bash
-   !python download_weights.py
-   ```
-6. Run the notebook:
-   ```bash
-   !python kaggle_notebook.py
-   ```
-
-### For Google Colab:
-
-1. Create a new notebook
-2. Enable GPU runtime
-3. Clone this repository:
-   ```bash
-   !git clone https://github.com/yourusername/image-to-3d.git
-   %cd image-to-3d
-   ```
-4. Install dependencies:
-   ```bash
-   !pip install -r requirements.txt
-   ```
-5. Download pre-trained weights:
-   ```bash
-   !python download_weights.py
-   ```
-6. Run the notebook:
-   ```bash
-   !python kaggle_notebook.py
-   ```
-
-## Usage
-
-### Command Line Interface
+## Cài đặt
 
 ```bash
-python convert.py --input path/to/image.jpg --output output/model.glb --num_views 8
+# Clone repository
+git clone https://github.com/yourusername/diffusion-imageto3d.git
+cd diffusion-imageto3d
+
+# Cài đặt các thư viện cần thiết
+pip install -r requirements.txt
 ```
 
-### Python API
+## Sử dụng
+
+### Sử dụng từ dòng lệnh
+
+```bash
+python kaggle_notebook.py --input path/to/input/image.jpg --output path/to/output/model.glb
+```
+
+### Các tùy chọn nâng cao
+
+```bash
+python kaggle_notebook.py \
+  --input path/to/input/image.jpg \
+  --output path/to/output/model.glb \
+  --num_views 8 \
+  --elevation_min -20 \
+  --elevation_max 40 \
+  --azimuth_min 0 \
+  --azimuth_max 360 \
+  --num_inference_steps 50 \
+  --apply_texture \
+  --mesh_quality high
+```
+
+### Sử dụng trong Python
 
 ```python
-from src.preprocess import ImagePreprocessor
-from src.inference import load_model
-from src.postprocess import ModelPostProcessor
+from kaggle_notebook import process_image
 
-# Initialize components
-preprocessor = ImagePreprocessor()
-model = load_model('models/model.pt')
-postprocessor = ModelPostProcessor()
+# Xử lý hình ảnh
+output_path = process_image(
+    input_path='path/to/input/image.jpg',
+    output_path='path/to/output/model.glb',
+    num_views=8,
+    elevation_range=(-20, 40),
+    azimuth_range=(0, 360),
+    num_inference_steps=50,
+    apply_texture=True,
+    mesh_quality='high'
+)
 
-# Process image
-image_tensor = preprocessor.preprocess('input/image.jpg')
-novel_views = model.generate_novel_views(image_tensor, num_views=8)
-mesh = postprocessor.create_mesh_from_views(novel_views, 'output/model.glb')
+print(f"3D model created successfully: {output_path}")
 ```
 
-## Project Structure
+## Cách hoạt động
+
+1. **Tiền xử lý hình ảnh**: Hình ảnh đầu vào được tiền xử lý để phù hợp với mô hình
+2. **Mã hóa hình ảnh**: Hình ảnh được mã hóa vào không gian latent bằng VAE
+3. **Tạo góc nhìn mới**: Sử dụng Latent Diffusion để tạo ra các góc nhìn mới từ không gian latent
+4. **Giải mã góc nhìn**: Các góc nhìn mới được giải mã từ không gian latent
+5. **Tạo đám mây điểm**: Từ các góc nhìn mới, tạo ra đám mây điểm 3D
+6. **Tái tạo bề mặt**: Sử dụng thuật toán Poisson Surface Reconstruction để tạo mô hình 3D
+7. **Áp dụng kết cấu**: Tự động áp dụng kết cấu cho mô hình 3D
+8. **Xuất mô hình**: Xuất mô hình 3D ở định dạng được chỉ định
+
+## Cấu trúc dự án
 
 ```
-.
-├── input/              # Input images
-├── output/             # Generated 3D models
-├── models/             # Pre-trained model weights
-├── src/               # Source code
-│   ├── preprocess.py  # Image preprocessing
-│   ├── inference.py   # Model inference
-│   └── postprocess.py # 3D model post-processing
-├── convert.py         # Command-line interface
-├── download_weights.py # Script to download pre-trained weights
-├── kaggle_notebook.py # Script to run on Kaggle
-├── kaggle_notebook.ipynb # Jupyter notebook for Kaggle
-├── requirements.txt   # Dependencies
-└── README.md         # Documentation
+diffusion-imageto3d/
+├── src/
+│   ├── inference.py       # Mô hình Zero123++ với Latent Diffusion
+│   ├── preprocess.py      # Tiền xử lý hình ảnh
+│   └── postprocess.py     # Hậu xử lý và tạo mô hình 3D
+├── kaggle_notebook.py     # Notebook chính để chạy trên Kaggle
+├── requirements.txt       # Các thư viện cần thiết
+└── README.md              # Tài liệu hướng dẫn
 ```
 
-## Technical Details
+## Tối ưu hóa hiệu suất
 
-### Model Architecture
+Dự án này đã được tối ưu hóa để chạy trên môi trường Kaggle với tài nguyên hạn chế:
 
-The project uses Zero123++, a state-of-the-art model for novel view synthesis. The model consists of:
+- **Mixed Precision**: Sử dụng mixed precision để giảm sử dụng bộ nhớ và tăng tốc độ xử lý
+- **Quản lý bộ nhớ**: Xóa bộ nhớ cache định kỳ và chuyển dữ liệu từ GPU sang CPU khi cần thiết
+- **Tùy chỉnh chất lượng mesh**: Cho phép người dùng điều chỉnh chất lượng mesh để cân bằng giữa chất lượng và hiệu suất
 
-1. **Encoder**: Converts the input image into a latent representation
-2. **View Conditioner**: Conditions the latent representation on the desired view angle
-3. **Decoder**: Generates a novel view from the conditioned latent representation
+## Chất lượng tái tạo 3D
 
-### 3D Reconstruction Pipeline
+Dự án này sử dụng Latent Diffusion Model để cải thiện chất lượng tái tạo 3D:
 
-The 3D reconstruction pipeline consists of:
+- **Không gian latent**: Sử dụng không gian latent để nén thông tin và giảm nhiễu
+- **Tái tạo bề mặt nâng cao**: Sử dụng thuật toán Poisson Surface Reconstruction để tạo mô hình 3D chất lượng cao
+- **Áp dụng kết cấu**: Tự động áp dụng kết cấu cho mô hình 3D để tăng tính thực tế
 
-1. **Feature Detection**: Detect keypoints in the generated views
-2. **Feature Matching**: Match keypoints between views
-3. **Point Cloud Generation**: Triangulate 3D points from matched keypoints
-4. **Mesh Reconstruction**: Create a mesh from the point cloud using Poisson surface reconstruction
-5. **Mesh Optimization**: Optimize the mesh for better quality
+## Các mức chất lượng mesh
 
-## Requirements
+Dự án hỗ trợ 3 mức chất lượng mesh:
 
-- Python 3.8+
-- CUDA-capable GPU (provided by Kaggle/Colab)
-- 16GB+ RAM recommended
-- PyTorch 2.0+
-- Open3D 0.15+
-- Trimesh 3.9+
+- **Thấp**: Sử dụng convex hull (nhanh nhất, chất lượng thấp nhất)
+- **Trung bình**: Sử dụng Poisson reconstruction với depth=7 (cân bằng chất lượng và hiệu suất)
+- **Cao**: Sử dụng Poisson reconstruction với depth=9 (chất lượng cao nhất, có thể chậm hơn)
 
-## Performance Considerations
+## Giới hạn
 
-- **GPU Memory**: The model requires approximately 8GB of GPU memory
-- **Processing Time**: Processing a single image takes approximately 1-2 minutes on a P100 GPU
-- **Output Quality**: The quality of the 3D model depends on the input image quality and the number of novel views
+- Chất lượng mô hình 3D phụ thuộc vào chất lượng hình ảnh đầu vào
+- Mô hình có thể không tái tạo chính xác các chi tiết phức tạp
+- Thời gian xử lý phụ thuộc vào kích thước hình ảnh và số lượng góc nhìn
 
-## License
+## Đóng góp
 
-MIT License 
+Mọi đóng góp đều được hoan nghênh! Vui lòng tạo issue hoặc pull request.
+
+## Giấy phép
+
+MIT 
