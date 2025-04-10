@@ -1,0 +1,16 @@
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.21.0
+opencv-python>=4.5.0
+pillow>=8.0.0
+tqdm>=4.65.0
+matplotlib>=3.5.0
+trimesh>=3.9.0
+pyrender>=0.1.45
+open3d>=0.15.0
+scipy>=1.7.0
+requests>=2.25.0
+huggingface-hub>=0.10.0
+einops>=0.6.0
+accelerate>=0.20.0
+transformers>=4.30.0 
