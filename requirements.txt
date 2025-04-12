@@ -15,4 +15,6 @@ einops>=0.6.0
 accelerate>=0.20.0
 transformers>=4.30.0
 scikit-image>=0.19.0
-pymeshlab>=2022.2.post2 
+pymeshlab>=2022.2.post2
+colmap>=0.1.0
+openmvs>=1.0.0 
